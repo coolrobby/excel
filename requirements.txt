@@ -1,5 +1,4 @@
 pandas
 streamlit
-spellchecker
-language_tool_python
+xlsxwriter
 openpyxl
