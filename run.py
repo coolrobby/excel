@@ -80,9 +80,15 @@ def convert_df_to_excel(df):
 def main():
     st.title("Excel File Processing and Correction")
     
-    uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
-    if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
+    # Get a list of all Excel files in the current directory
+    files = [f for f in os.listdir() if f.endswith(".xlsx")]
+    
+    # Let the user choose a file
+    selected_file = st.selectbox("Choose a file to process", files)
+    
+    if selected_file:
+        file_path = os.path.join(os.getcwd(), selected_file)
+        df = pd.read_excel(file_path)
         
         st.write("Original Data:")
         st.write(df.head())  # Display the first few rows of the uploaded file
@@ -95,7 +101,20 @@ def main():
         
         # Convert the processed dataframe to an Excel file for download
         processed_excel = convert_df_to_excel(processed_df)
-        st.download_button(label="Download Processed Excel", data=processed_excel, file_name="processed_data.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        
+        # Save the processed file in the current folder
+        output_filename = f"{get_current_time()}_{selected_file}"
+        output_file_path = os.path.join(os.getcwd(), output_filename)
+        with open(output_file_path, "wb") as f:
+            f.write(processed_excel)
+        
+        # Provide the download link
+        st.download_button(
+            label="Download Processed Excel",
+            data=processed_excel,
+            file_name=output_filename,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
 if __name__ == "__main__":
     main()
