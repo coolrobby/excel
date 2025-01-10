@@ -3,8 +3,6 @@ import pandas as pd
 import re
 import streamlit as st
 from datetime import datetime
-from spellchecker import SpellChecker
-import language_tool_python
 from io import BytesIO
 
 # 获取当前时间，格式为：YYYY-MM-DD_HH-MM-SS
@@ -45,27 +43,12 @@ def add_space_after_punctuation(text):
     pattern = r'[，。；：！？（）【】《》“”‘’……·]'
     return re.sub(pattern, add_space, text)
 
-# 拼写检查和修正
-def correct_spelling(text):
-    spell = SpellChecker()
-    words = text.split()
-    corrected_words = [spell.correction(word) if word not in spell else word for word in words]
-    return ' '.join(corrected_words)
-
-# 语法检查和修正
-def correct_grammar(text):
-    tool = language_tool_python.LanguageTool('en-US')
-    matches = tool.check(text)
-    return language_tool_python.utils.correct(text, matches)
-
 # 处理DataFrame中的标点符号、空格、去除前后空白并调整标点符号
 def process_dataframe(df):
     for col in df.columns:
         df[col] = df[col].apply(lambda x: remove_extra_spaces(str(x)) if isinstance(x, str) else x)
         df[col] = df[col].apply(lambda x: adjust_punctuation(str(x)) if isinstance(x, str) else x)
         df[col] = df[col].apply(lambda x: add_space_after_punctuation(str(x)) if isinstance(x, str) else x)
-        df[col] = df[col].apply(lambda x: correct_spelling(str(x)) if isinstance(x, str) else x)
-        df[col] = df[col].apply(lambda x: correct_grammar(str(x)) if isinstance(x, str) else x)
         df[col] = df[col].apply(lambda x: x.strip() if isinstance(x, str) else x)
     return df
 
